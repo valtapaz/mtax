@@ -10,64 +10,64 @@ const mdp = (value) => {
 	// ! is used for media--images, audio, and video--and may possibly gain support for other visual or structural content in the future, such as tables
 
 	// Set $b BOLD TEXT b$
-	if (/\$b.+b\$/.test(value)) {
+	if (/\$b(.*\n*)*b\$/.test(value)) {
 		console.log(`Applying bold`);
 		newVal = newVal.replace(/\$b/g, '<strong>');
 		newVal = newVal.replace(/b\$/g, '</strong>');
 	}
 	// Set $i ITALIC TEXT i$
-	if (/\$i.+i\$/.test(value)) {
+	if (/\$i(.*\n*)*i\$/.test(value)) {
 		console.log(`Applying italic`);
 		newVal = newVal.replace(/\$i/g, '<em>');
 		newVal = newVal.replace(/i\$/g, '</em>');
 	}
 	// Set $u UNDERLINED TEXT u$
-	if (/\$u.+u\$/.test(value)) {
+	if (/\$u(.*\n*)*u\$/.test(value)) {
 		console.log(`Applying underline`);
 		newVal = newVal.replace(/\$u/g, '<u>');
 		newVal = newVal.replace(/u\$/g, '</u>');
 	}
 	// Set $s STRIKETHROUGH TEXT s$
-	if (/\$s.+s\$/.test(value)) {
+	if (/\$s(.*\n*)*s\$/.test(value)) {
 		console.log(`Applying strikethrough`);
 		newVal = newVal.replace(/\$s/g, '<s>');
 		newVal = newVal.replace(/s\$/g, '</s>');
 	}
 	// Set $p CODE TEXT p$ (currently broken, as this function relies on translating HTML to rich text)
-	if (/\$p.+p\$/.test(value)) {
+	if (/\$p(.*\n*)*p\$/.test(value)) {
 		console.log(`Applying underline`);
 		newVal = newVal.replace(/\$p/g, '<pre>');
 		newVal = newVal.replace(/p\$/g, '</pre>');
 	}
 	// Set $r RIGHT-ALIGNED TEXT r$ (creates a new line)
-	if (/\$r.+r\$/.test(value)) {
+	if (/\$r(.*\n*)*r\$/.test(value)) {
 		console.log(`Applying right alignment`);
 		newVal = newVal.replace(/\$r/g, '<span style="display:block;text-align:right;">');
 		newVal = newVal.replace(/r\$/g, '</span>');
 	}
 	// Set $c CENTER-ALIGNED TEXT c$ (creates a new line)
-	if (/\$c.+c\$/.test(value)) {
+	if (/\$c(.*\n*)*c\$/.test(value)) {
 		console.log(`Applying center alignment`);
 		newVal = newVal.replace(/\$c/g, '<span style="display:block;text-align:center;">');
 		newVal = newVal.replace(/c\$/g, '</span>');
 	}
 	// Set $l LINK l$https://www.example.com
-	if (/\$l.+l\$http\S+/.test(value)) {
+	if (/\$l(.*\n*)*l\$http\S+/.test(value)) {
 		console.log(`Applying linking`);
-		let newAnchor = value.match(new RegExp(/\$l.+l\$http\S+/g));
+		let newAnchor = value.match(new RegExp(/\$l(.*\n*)*l\$http\S+/g));
 		//For each link, isolate the link, then assign it to a <a> element around the text
 		for (const i in newAnchor) {
 			let newLink = newAnchor[i].match(new RegExp(/http\S+/));
 			newAnchor[i] = newAnchor[i].replace(/\$l/, '<a href="'+newLink+'">');
 			newAnchor[i] = newAnchor[i].replace(/l\$http\S+/, '</a>');
-			newVal = newVal.replace(/\$l.+l\$http\S+/,newAnchor[i]);
+			newVal = newVal.replace(/\$l(.*\n*)*l\$http\S+/,newAnchor[i]);
 		}
 	}
 	
 	// Set #t:red& TINTED TEXT t# (not #c for Color, as that would also pick up some hex color codes)
-	if (/#t:\S{0,32}&.+t#/.test(value)) {
+	if (/#t:\S{0,32}&(.*\n*)*t#/.test(value)) {
 		console.log(`Applying text coloring`);
-		let newColor = value.match(new RegExp(/#t:\S{0,32}&.+t#/g));
+		let newColor = value.match(new RegExp(/#t:\S{0,32}&(.*\n*)*t#/g));
 		newColor.forEach((instance) => {
 			let color = instance.match(/#t:\S{0,32}&/);
 			color = color[0];
@@ -78,9 +78,9 @@ const mdp = (value) => {
 		});
 	}
 	// Set #h:yellow& HIGHLIGHTED TEXT h#
-	if (/#h:\S{0,32}&.+h#/.test(value)) {
+	if (/#h:\S{0,32}&(.*\n*)*h#/.test(value)) {
 		console.log(`Applying text coloring`);
-		let newColor = value.match(new RegExp(/#h:\S{0,32}&.+h#/g));
+		let newColor = value.match(new RegExp(/#h:\S{0,32}&(.*\n*)*h#/g));
 		newColor.forEach((instance) => {
 			let color = instance.match(/#h:\S{0,32}&/);
 			color = color[0];
@@ -91,19 +91,20 @@ const mdp = (value) => {
 		});
 	}
 	// Set #s SPOILER TEXT s#
-	if (/#s.+s#/.test(value)) {
+	if (/#s(.*\n*)*s#/.test(value)) {
 		console.log(`Applying text coloring`);
-		let newColor = value.match(new RegExp(/#s.+s#/g));
+		let newColor = value.match(new RegExp(/#s(.*\n*)*s#/g));
 		console.log(newColor);
 		newColor.forEach((instance) => {
 			newVal = newVal.replace(/#s/,`<span style='transition:color 0.5s; color:rgba(0, 0, 0, 0); text-shadow:0 0 5px rgba(0, 0, 0, .5);' onclick='unhide(this)'>`);
 			newVal = newVal.replace(/s\#/,`</span>`);
 		});
 	}
-	if (/#l(.*s*)+l#/.test(value)) {
+	if (/#l(.*\n*)*l#/.test(value)) {
 		console.log(`Applying long text recognition`);
-		newVal = newVal.replace(/\$c/g, '<div style="background:#CCC;height:1em;" onclick="expand(this)"><span style="display:none;">');
-		newVal = newVal.replace(/c\$/g, '</span></div>');
+		newVal = newVal.replace(/#l/g, '<div style="background:#DDD;min-height:1em;border-radius:1em;padding:1em;" onclick="expand(this)">\
+		<span class="click" style="display:inline;color:#444;">(Click to reveal)</span><span style="display:none;">');
+		newVal = newVal.replace(/l#/g, '</span></div>');
 	}
 
 	// Set !Image with alt&https://upload.wikimedia.org/wikipedia/commons/4/41/Secretary_Blinken_Meets_With_Pope_Francis_%2851296283616%29.jpg
@@ -166,14 +167,13 @@ const unhide = (item) => {
 	item.style.textShadow = '0 0 5px rgba(0,0,0,0.5)';
 }
 const expand = (item) => {
-	console.log(item);
-	console.log(item.firstChild);
-	console.log(item.firstChild.style);
-	if (item.style.display === 'none') {
-		item.style.display = 'block';
+	if (item.childNodes[2].style.display === 'none') {
+		item.childNodes[1].style.display = 'none';
+		item.childNodes[2].style.display = 'block';
 		return;
 	}
-	item.style.display = 'none';
+	item.childNodes[2].style.display = 'none';
+	item.childNodes[1].style.display = 'inline';
 }
 
 
